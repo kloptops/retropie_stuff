@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#
+# See the LICENSE.md file at the top-level directory of this distribution and
+# at https://raw.githubusercontent.com/kloptops/retropie_stuff/master/LICENSE.md
+#
+
 if [ $(basename $PWD) != "retropie_stuff" ];
 then
 	echo "Please run this in the retropie_stuff root directory."

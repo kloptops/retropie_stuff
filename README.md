@@ -57,6 +57,8 @@ To install better splashscreen do:
 
     ./setup.sh --install-splashscreen
 
+To understand the better splashscreens more, [see here](retropie-splashscreen/README.md).
+
 ## Step 2
 
 So from my experience emulationstation is better with background music whilst choosing a game to play. I have a playlist of about 20 different songs from different video games over the years. I can't share it because of copyright reasons but I recommend finding music from games you love.
@@ -65,6 +67,7 @@ Unfortunately the RPi0 is quite weak and a few of the ways to add music makes em
 
     ./setup.sh --install-music
 
+To get music to play in emulationstation, just place mp3's into the `/home/pi/RetroPie/roms/music` folder.
 
 ## Step 3
 
@@ -81,6 +84,10 @@ So let's finally clean up the boot text so that all we see are the raspberries u
 To do this type:
 
     ./setup.sh --install-quiet-boot
+
+## Finally
+
+If there is anything you don't quite like about any of the things you've installed with this script, there is a companion --uninstall version of it. Which does it's best to undo the work the install script has done.
 
 ## Done
 
