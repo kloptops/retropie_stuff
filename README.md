@@ -74,6 +74,13 @@ To install it type:
 
     ./setup.sh --install-shutdown-button
 
+## Step 4
+
+So let's finally clean up the boot text so that all we see are the raspberries until the splash screen appears
+
+To do this type:
+
+    ./setup.sh --install-quiet-boot
 
 ## Done
 

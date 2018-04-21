@@ -260,6 +260,43 @@ do_shutdown_button_uninstall() {
 }
 
 ########################################################################################
+## Quiet boot
+do_quiet_boot_install() {
+	echo "Installing quiet boot"
+
+	echo " * Backing up files"
+	cp -v /etc/motd backup/motd
+
+	echo " * Making things a little more quiet"
+	touch ~/.hushlogin
+	echo "" | sudo tee /etc/motd
+
+	echo " * Making things a quite a bit more quiet"
+	sudo sed -i 's#^ExecStart.*#ExecStart=-/sbin/agetty --skip-login --noclear --noissue --login-options "-f pi" \%I \$TERM#' /etc/systemd/system/autologin@.service
+	sudo sed -i 's/console=tty1/console=tty3/; s/loglevel=[0-9]/loglevel=3 vt.global_cursor_default=0 quiet/' /boot/cmdline.txt
+
+	echo "Done installing quiet boot"
+}
+
+do_quiet_boot_uninstall() {
+	echo "Installing quiet boot"
+
+	echo " * Restoring files back to their former glory"
+	if [ -f backup/motd ];
+	then
+		sudo cp -v backup/motd /etc/motd
+		rm -v backup/motd
+	fi
+
+	rm -v ~/.hushlogin
+
+	sudo sed -i 's#^ExecStart.*#ExecStart=-/sbin/agetty --autologin pi --noclear %I $TERM#' /etc/systemd/system/autologin@.service
+	sudo sed -i 's/console=tty[0-9]/console=tty1/; s/ vt.global_cursor_default=0 / /; s/ quiet / /' /boot/cmdline.txt
+	echo "Done uninstalling quiet boot"
+}
+
+
+########################################################################################
 ## Helper functions
 do_remove_home_bin() {
 	if [ $(ls -1 $HOME/bin | wc -l) -eq 0 ];
@@ -278,6 +315,7 @@ Commands:
     --[un]install-music            installs background music player for emulationstation
     --[un]install-splashscreen     installs a better splashscreen for booting
     --[un]install-shutdown-button  installs a service to handle a shutdown button
+    --[un]install-quiet-boot       makes boot text a lot quieter
 
     --full-boyle                   installs everything
 EOF
@@ -298,38 +336,38 @@ do
 	case $i in
 	--network-nowait)
 		do_network_nowait
-		exit 0
 		;;
 	--network-wait)
 		do_network_wait
-		exit 0
 		;;
 
 	--install-music)
 		do_music_install
-		exit 0
 		;;
 	--uninstall-music)
 		do_music_uninstall
-		exit 0
 		;;
 
 	--install-splashscreen)
 		do_splashscreen_install
-		exit 0
 		;;
 	--uninstall-splashscreen)
 		do_splashscreen_uninstall
-		exit 0
 		;;
 
 	--install-shutdown-button)
 		do_shutdown_button_install
-		exit 0
 		;;
 	--uninstall-shutdown-button)
 		do_shutdown_button_uninstall
-		exit 0
+		;;
+
+	--install-quiet-boot)
+		do_quiet_boot_install
+		;;
+
+	--uninstall-quiet-boot)
+		do_quiet_boot_uninstall
 		;;
 
 	--help)
@@ -343,6 +381,7 @@ do
 		do_music_install
 		do_splashscreen_install
 		do_shutdown_button_install
+		do_quiet_boot_install
 		exit 0
 		;;
 	*)
