@@ -202,13 +202,13 @@ do_splashscreen_uninstall() {
 	echo "Finished uninstalling a better splashscreen"
 }
 
-
+########################################################################################
 ### Shutdown button.
 do_shutdown_button_install() {
 	echo "Installing shutdown button script"
-	if [ -f $HOME/bin/pishutdown.py ];
+	if [ -f $HOME/bin/shutdown.py ];
 	then
-		echo "Shutdown script already installed"
+		echo "Shutdown button already installed!"
 		return
 	fi
 
@@ -218,14 +218,14 @@ do_shutdown_button_install() {
 	chmod -v +x $HOME/bin/shutdown.py
 
 	echo " * Creating service"
-	cat << EOF > /etc/systemd/system/pishutdown.service
+	cat <<EOF | sudo tee /etc/systemd/system/shutdownpy.service
 [Service]
 ExecStart=/usr/bin/python /home/pi/bin/shutdown.py
 WorkingDirectory=/home/pi
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=pishutdown
+SyslogIdentifier=shutdownpy
 User=root
 Group=root
 
@@ -234,31 +234,33 @@ WantedBy=multi-user.target
 EOF
 
 	echo " * Starting service"
-	sudo systemctl enable pishutdown.service
-	sudo systemctl start pishutdown.service
+	sudo systemctl enable shutdownpy.service
+	sudo systemctl start shutdownpy.service
 	echo "Finished installing shutdown button script"
 }
 
 do_shutdown_button_uninstall() {
 	echo "Uninstalling shutdown button script"
-	if [ !-f $HOME/bin/pishutdown.py ];
+	if [ ! -f $HOME/bin/shutdown.py ];
 	then
 		echo "Shutdown button not installed!"
 		return
 	fi
 
 	echo " * Stopping service"
-	sudo systemctl stop pishutdown.service
-	sudo systemctl disable pishutdown.service
+	sudo systemctl stop shutdownpy.service
+	sudo systemctl disable shutdownpy.service
 
 	echo " * Removing files"
-	sudo rm -v /etc/systemd/system/pishutdown.service
+	sudo rm -v /etc/systemd/system/shutdownpy.service
 	
 	rm -v $HOME/bin/shutdown.py
 	do_remove_home_bin
 	echo "Finished uninstalling shutdown button script"
 }
 
+########################################################################################
+## Helper functions
 do_remove_home_bin() {
 	if [ $(ls -1 $HOME/bin | wc -l) -eq 0 ];
 	then
@@ -271,19 +273,25 @@ do_help() {
 Usage: setup.sh <command>
 
 Commands:
-    --network-[no]wait          wait for network connection at startup
+    --network-[no]wait             wait for network connection at startup
 
-    --[un]install-music         installs background music player for emulationstation
-    --[un]install-splashscreen  installs a better splashscreen for booting
+    --[un]install-music            installs background music player for emulationstation
+    --[un]install-splashscreen     installs a better splashscreen for booting
+    --[un]install-shutdown-button  installs a service to handle a shutdown button
 
-    --full-boyle                installs everything
+    --full-boyle                   installs everything
 EOF
 }
+
+
+########################################################################################
+## main code
 
 if [ ! -d backup/ ];
 then
 	mkdir -vp backup/
 fi
+
 
 for i in $*
 do
@@ -330,6 +338,7 @@ do
 		;;
 
 	--full-boyle)
+		## NINE-NINE!
 		do_network_nowait
 		do_music_install
 		do_splashscreen_install
