@@ -301,6 +301,15 @@ do
 		exit 0
 		;;
 
+	--install-shutdown-button)
+		do_shutdown_button_install
+		exit 0
+		;;
+	--uninstall-shutdown-button)
+		do_shutdown_button_uninstall
+		exit 0
+		;;
+
 	--help)
 		do_help
 		exit 0

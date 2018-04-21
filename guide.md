@@ -65,3 +65,16 @@ Unfortunately the RPi0 is quite weak and a few of the ways to add music makes em
 
     ./setup.sh --install-music
 
+
+## Step 3
+
+This is my personal preference, but I like to have a button to shutdown/reset the system. I've found that of the few systems I've given out, the ones with a shutdown button are the ones that the owners actually shut it down properly. I have followed [this tutorial to add a button between the ground pin and pin 5](https://gilyes.com/pi-shutdown-button/). I have included basically their script.
+
+To install it type:
+
+    ./setup.sh --install-shutdown-button
+
+
+## Done
+
+For now this is all it does...
