@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $(basename $PWD) -ne "retropie_stuff" ];
+if [ $(basename $PWD) != "retropie_stuff" ];
 then
 	echo "Please run this in the retropie_stuff root directory."
 	exit 1
@@ -34,16 +34,16 @@ do_music_install() {
 		return
 	fi
 
-	echo "Installing mpg123"
-	sudo apt-get update
+	echo "* Installing mpg123"
+	# sudo apt-get update
 	sudo apt-get -y install mpg123
 
-	echo "Moving music player scripts into place"
+	echo " * Moving music player scripts into place"
 	mkdir -p $HOME/bin
 	cp -v bin/startmusic.sh bin/togglemusic.sh $HOME/bin
 	chmod -v +x $HOME/bin/startmusic.sh $HOME/bin/togglemusic.sh
 
-	echo "Patching player scripts into emulationstation configs"
+	echo " * Patching player scripts into emulationstation configs"
 	CONFIGDIR=/opt/retropie/configs/all/
 
 	TEMPFILE=$(tempfile)
@@ -67,7 +67,7 @@ EOF
 
 	GAMELIST=$HOME/.emulationstation/gamelists/retropie/gamelist.xml
 
-	echo "Install emulationstation music toggle menu item"
+	echo " * Install emulationstation music toggle menu item"
 	ln -vs $HOME/bin/togglemusic.sh $HOME/RetroPie/retropiemenu/togglemusic.sh
 	ln -vs $HOME/RetroPie/retropiemenu/icons/{audiosettings,togglemusic}.png
 
@@ -93,9 +93,17 @@ EOF
 		cat $TEMPFILE > $GAMELIST
 		rm -f $TEMPFILE
 	fi
+
+	echo "Done installing emulationstation background music"
 }
 
 do_music_uninstall() {
+	if [ ! -f $HOME/bin/startmusic.sh ];
+	then
+		echo "Emulationstation background music not installed"
+		return
+	fi
+
 	if pgrep mpg123;
 	then
 		echo "Stopping mpg123"
@@ -105,20 +113,24 @@ do_music_uninstall() {
 	echo "Uninstalling mpg123"
 	sudo apt-get -y remove mpg123
 
-	echo "Removing scripts"
+	echo " * Removing scripts"
 	rm -vf $HOME/bin/startmusic.sh $HOME/bin/togglemusic.sh
 
-	echo "Unpatch emulationstation configs"
-	grep -vP '#.*music' /opt/retropie/configs/all/autostart.sh > /opt/retropie/configs/all/autostart.sh
-	rm -v /opt/retropie/configs/all/runcommand-on{end,start}.sh
-	touch /opt/retropie/configs/all/runcommand-on{end,start}.sh
+	echo " * Unpatch emulationstation configs"
+	CONFIGDIR=/opt/retropie/configs/all/
+	TEMPFILE=$(tempfile)
+	grep -vP '#.*music' $CONFIGDIR/autostart.sh > $TEMPFILE
+	cat $TEMPFILE > $CONFIGDIR/autostart.sh
+	rm -f $TEMPFILE 
+	rm -v $CONFIGDIR/runcommand-on{end,start}.sh
 
-	echo "Removing auxillary files"
+	echo " * Removing auxillary files"
 	rm -vf $HOME/.NoMusic
 
 	GAMELIST=$HOME/.emulationstation/gamelists/retropie/gamelist.xml
 
-	rm -f $HOME/RetroPie/retropiemenu/togglemusic.sh
+	rm -vf $HOME/RetroPie/retropiemenu/togglemusic.sh
+	rm -v $HOME/RetroPie/retropiemenu/icons/togglemusic.png
 	if [ $(grep -c 'togglemusic.sh' $GAMELIST) -ne 0 ];
 	then
 		## Okay so I'm sure there is a better way to do this... but... it works?
@@ -149,6 +161,8 @@ do_music_uninstall() {
 	fi
 
 	do_remove_home_bin
+
+	echo "Done installing emulationstation background music"
 }
 
 ########################################################################################
@@ -166,7 +180,7 @@ do_splashscreen_install() {
 	cp -v /etc/splashscreen.list backup/
 
 	echo " * Copying new splashscreen files"
-	cp -v splashscreen/RPi0_* $HOME/RetroPie/splashscreens/
+	cp -v splashscreens/RPi0_* $HOME/RetroPie/splashscreens/
 	sudo cp -v retropie-splashscreen/asplashscreen.sh /opt/retropie/supplementary/splashscreen/
 	sudo cp -v splashscreens/splashscreen.list /etc/splashscreen.list
 
