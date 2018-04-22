@@ -267,6 +267,12 @@ do_shutdown_button_uninstall() {
 ########################################################################################
 ## Quiet boot
 do_quiet_boot_install() {
+	WANT_BERRIES=0
+	if [ x"$1" != "" ];
+	then
+		WANT_BERRIES=$1
+	fi
+
 	echo "Installing quiet boot"
 
 	echo " * Backing up files"
@@ -278,7 +284,12 @@ do_quiet_boot_install() {
 
 	echo " * Making things a quite a bit more quiet"
 	sudo sed -i 's#^ExecStart.*#ExecStart=-/sbin/agetty --skip-login --noclear --noissue --login-options "-f pi" \%I \$TERM#' /etc/systemd/system/autologin@.service
-	sudo sed -i 's/console=tty1/console=tty3/; s/loglevel=[0-9]/loglevel=3 vt.global_cursor_default=0 quiet/' /boot/cmdline.txt
+	sudo sed -i 's/console=tty[0-9]/console=tty3/; s/loglevel=[0-9]/loglevel=3/; s/$/ vt.global_cursor_default=0 quiet/' /boot/cmdline.txt
+
+	if [ $WANT_BERRIES -eq 1 ];
+	then
+		sudo sed -i 's/$/ logo.nologo/' /boot/cmdline.txt
+	fi
 
 	echo "Done installing quiet boot"
 }
@@ -296,7 +307,7 @@ do_quiet_boot_uninstall() {
 	rm -v ~/.hushlogin
 
 	sudo sed -i 's#^ExecStart.*#ExecStart=-/sbin/agetty --autologin pi --noclear %I $TERM#' /etc/systemd/system/autologin@.service
-	sudo sed -i 's/console=tty[0-9]/console=tty1/; s/ vt.global_cursor_default=0 / /; s/ quiet / /' /boot/cmdline.txt
+	sudo sed -i 's/console=tty[0-9]/console=tty1/; s/ vt.global_cursor_default=0//; s/ quiet//; s/ logo.nologo//' /boot/cmdline.txt
 	echo "Done uninstalling quiet boot"
 }
 
@@ -315,14 +326,16 @@ do_help() {
 Usage: setup.sh <command>
 
 Commands:
-    --network-[no]wait             wait for network connection at startup
+    --network-[no]wait                    wait for network connection at startup
 
-    --[un]install-music            installs background music player for emulationstation
-    --[un]install-splashscreen     installs a better splashscreen for booting
-    --[un]install-shutdown-button  installs a service to handle a shutdown button
-    --[un]install-quiet-boot       makes boot text a lot quieter
+    --[un]install-music                   installs background music player for
+                                          emulationstation
+    --[un]install-splashscreen            installs a better splashscreen for booting
+    --[un]install-shutdown-button         installs a service to handle a shutdown button
+    --[un]install-quiet-boot[-no-berries] makes boot text a lot quieter, the -no-berries
+                                          version removes the raspberries also
 
-    --full-boyle                   installs everything
+    --full-boyle                          installs everything
 EOF
 }
 
@@ -367,8 +380,12 @@ do
 		do_shutdown_button_uninstall
 		;;
 
+	--install-quiet-boot-no-berries)
+		do_quiet_boot_install 1
+		;;
+
 	--install-quiet-boot)
-		do_quiet_boot_install
+		do_quiet_boot_install 0
 		;;
 
 	--uninstall-quiet-boot)
@@ -380,13 +397,23 @@ do
 		exit 0
 		;;
 
+	--full-boyle-no-berries)
+		## NINE-NINE!
+		do_network_nowait
+		do_music_install
+		do_splashscreen_install
+		do_shutdown_button_install
+		do_quiet_boot_install 1
+		exit 0
+		;;
+
 	--full-boyle)
 		## NINE-NINE!
 		do_network_nowait
 		do_music_install
 		do_splashscreen_install
 		do_shutdown_button_install
-		do_quiet_boot_install
+		do_quiet_boot_install 0
 		exit 0
 		;;
 	*)
