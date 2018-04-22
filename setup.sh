@@ -346,7 +346,7 @@ Commands:
     --[un]install-quiet-boot[-no-berries] makes boot text a lot quieter, the -no-berries
                                           version removes the raspberries also
 
-    --full-boyle                          installs everything
+    --full-boyle[-no-berries]             installs everything
 EOF
 }
 
@@ -359,6 +359,12 @@ then
 	mkdir -vp backup/
 fi
 
+# No arguments? Then show help!
+if [ x"$1" = "" ];
+then
+	do_help()
+	exit 1
+fi
 
 for i in $*
 do
@@ -399,7 +405,7 @@ do
 		do_quiet_boot_install 0
 		;;
 
-	--uninstall-quiet-boot)
+	--uninstall-quiet-boot*)
 		do_quiet_boot_uninstall
 		;;
 

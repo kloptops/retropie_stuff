@@ -85,6 +85,10 @@ To do this type:
 
     ./setup.sh --install-quiet-boot
 
+If you'd like to remove the raspberries from boot, you can do the following instead.
+
+    ./setup.sh --install-quiet-boot-no-berries
+
 ## Finally
 
 If there is anything you don't quite like about any of the things you've installed with this script, there is a companion --uninstall version of it. Which does it's best to undo the work the install script has done.
