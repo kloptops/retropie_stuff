@@ -274,6 +274,11 @@ do_quiet_boot_install() {
 	fi
 
 	echo "Installing quiet boot"
+	if [ $(grep -c 'quiet' /boot/cmdline.txt) -gt 0 ];
+	then
+		echo "Quiet boot already installed!"
+		return
+	fi
 
 	echo " * Backing up files"
 	cp -v /etc/motd backup/motd
@@ -296,8 +301,14 @@ do_quiet_boot_install() {
 
 do_quiet_boot_uninstall() {
 	echo "Installing quiet boot"
+	if [ $(grep -c 'quiet' /boot/cmdline.txt) -eq 0 ];
+	then
+		echo "Quiet boot hasn't been installed!"
+		return
+	fi
 
 	echo " * Restoring files back to their former glory"
+
 	if [ -f backup/motd ];
 	then
 		sudo cp -v backup/motd /etc/motd
