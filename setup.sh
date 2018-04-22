@@ -333,7 +333,7 @@ do_remove_home_bin() {
 }
 
 do_help() {
-	cat << EOF
+	cat <<EOF
 Usage: setup.sh <command>
 
 Commands:
@@ -360,10 +360,9 @@ then
 fi
 
 # No arguments? Then show help!
-if [ x"$1" = "" ];
+if [ $# -eq 0 ];
 then
-	do_help()
-	exit 1
+	do_help
 fi
 
 for i in $*
