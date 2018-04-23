@@ -263,6 +263,61 @@ do_shutdown_button_uninstall() {
 	do_remove_home_bin
 	echo "Finished uninstalling shutdown button script"
 }
+########################################################################################
+### Safer shutdown.
+do_shutdown_button_install() {
+	echo "Installing safer shutdown"
+	if [ -f $HOME/bin/killes.py ];
+	then
+		echo "Safer shutdown already installed!"
+		return
+	fi
+
+	echo " * Moving files"
+	mkdir -vp $HOME/bin
+	cp -v bin/killes.sh $HOME/bin/
+	chmod -v +x $HOME/bin/killes.sh
+
+	echo " * Creating service"
+	cat <<EOF | sudo tee /etc/systemd/system/killes.service
+[Unit]
+Description=Kill EmulationStation
+After=autologin@tty1.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStop=/home/pi/bin/killes.sh
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+	echo " * Starting service"
+	sudo systemctl enable killes.service
+	sudo systemctl start killes.service
+	echo "Finished installing safer shutdown"
+}
+
+do_shutdown_button_uninstall() {
+	echo "Uninstalling safer shutdown"
+	if [ ! -f $HOME/bin/killes.sh ];
+	then
+		echo "Safer shutdown installed!"
+		return
+	fi
+
+	echo " * Stopping service"
+	sudo systemctl stop killes.service
+	sudo systemctl disable killes.service
+
+	echo " * Removing files"
+	sudo rm -v /etc/systemd/system/killes.service
+	
+	rm -v $HOME/bin/killes.sh
+	do_remove_home_bin
+	echo "Finished uninstalling safer shutdown"
+}
 
 ########################################################################################
 ## Quiet boot
@@ -343,6 +398,8 @@ Commands:
                                           emulationstation
     --[un]install-splashscreen            installs a better splashscreen for booting
     --[un]install-shutdown-button         installs a service to handle a shutdown button
+    --[un]install-safer-shutdown          installs a service to gracefully shutdown
+                                          emulationstation at shutdown
     --[un]install-quiet-boot[-no-berries] makes boot text a lot quieter, the -no-berries
                                           version removes the raspberries also
 
@@ -394,6 +451,13 @@ do
 		;;
 	--uninstall-shutdown-button)
 		do_shutdown_button_uninstall
+		;;
+
+	--install-safer-shutdown)
+		do_safer_shutdown_install
+		;;
+	--uninstall-safer-shutdown)
+		do_safer_shutdown_uninstall
 		;;
 
 	--install-quiet-boot-no-berries)

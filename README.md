@@ -71,15 +71,7 @@ To get music to play in emulationstation, just place mp3's into the `/home/pi/Re
 
 ## Step 3
 
-This is my personal preference, but I like to have a button to shutdown/reset the system. I've found that of the few systems I've given out, the ones with a shutdown button are the ones that the owners actually shut it down properly. I have followed [this tutorial to add a button between the ground pin and pin 5](https://gilyes.com/pi-shutdown-button/). I have included basically their script.
-
-To install it type:
-
-    ./setup.sh --install-shutdown-button
-
-## Step 4
-
-So let's finally clean up the boot text so that all we see are the raspberries until the splash screen appears
+So let's clean up the boot text so that all we see are the raspberries until the splash screen appears
 
 To do this type:
 
@@ -88,6 +80,22 @@ To do this type:
 If you'd like to remove the raspberries from boot, you can do the following instead.
 
     ./setup.sh --install-quiet-boot-no-berries
+
+## Step 4
+
+This is my personal preference, but I like to have a button to shutdown/reset the system. I've found that of the few systems I've given out, the ones with a shutdown button are the ones that the owners actually shut it down properly. I have followed [this tutorial to add a button between the ground pin and pin 5](https://gilyes.com/pi-shutdown-button/). I have included basically their script.
+
+To install it type:
+
+    ./setup.sh --install-shutdown-button
+
+## Step 5
+
+Since a shutdown button is a great, but can sometimes mean that emulationstation is not shutdown properly, I like to install a script that waits for a system shutdown to happen, and to cleanly exit whatever emulator is running and emulationstation. [This was taken from the retropie forums, and is made by the user meleu.](https://retropie.org.uk/forum/topic/12895/ensuring-es-gracefully-finish-and-save-metadata-in-every-system-shutdown/2)
+
+To install it type:
+
+    ./setup.sh --install-safer-shutdown
 
 ## Finally
 
