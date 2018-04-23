@@ -33,7 +33,7 @@ do_music_install() {
 		return
 	fi
 
-	if pgrep emulationstation;
+	if [ $ESPID -gt 0 ];
 	then
 		echo "Emulationstation must not be running."
 		return
@@ -106,6 +106,12 @@ do_music_uninstall() {
 	if [ ! -f $HOME/bin/startmusic.sh ];
 	then
 		echo "Emulationstation background music not installed"
+		return
+	fi
+
+	if [ $ESPID -gt 0 ];
+	then
+		echo "Emulationstation must not be running."
 		return
 	fi
 
@@ -377,6 +383,32 @@ do_quiet_boot_uninstall() {
 	echo "Done uninstalling quiet boot"
 }
 
+########################################################################################
+## Clean slate
+do_clean_state() {
+	echo "RetroPie clean slate"
+
+	if [ $ESPID -gt 0 ];
+	then
+		echo "Emulationstation must not be running"
+		return
+	fi
+
+	echo " * Removing all game states"
+	find $HOME/RetroPie -name '*.state*' -print -delete
+	echo " * Removing all rom save info"
+	find $HOME/RetroPie -name '*.srm' -print -delete
+
+	echo " * Removing all lastplayed and playcount info"
+	find $HOME/.emulationstation/ $HOME/RetroPie/ -name 'gamelist.xml' | while read filename
+	do
+		echo "    Cleaning '$filename'"
+		sed -i '/<lastplayed>/d; /<playcount>/d' $filename
+	done
+
+	echo "RetroPie is now in a clean state"
+}
+
 
 ########################################################################################
 ## Helper functions
@@ -404,6 +436,9 @@ Commands:
                                           version removes the raspberries also
 
     --full-boyle[-no-berries]             installs everything
+
+    --clean-slate                         deletes all saves, rom memory and played/last
+                                          played info to make it like a fresh install
 EOF
 }
 
@@ -416,6 +451,7 @@ then
 	mkdir -vp backup/
 fi
 
+ESPID="$(pgrep -f "/opt/retropie/supplementary/.*/emulationstation([^.]|$)" || echo 0)"
 # No arguments? Then show help!
 if [ $# -eq 0 ];
 then
@@ -475,6 +511,10 @@ do
 	--help)
 		do_help
 		exit 0
+		;;
+
+	--clean-slate)
+		do_clean_state
 		;;
 
 	--full-boyle-no-berries)
