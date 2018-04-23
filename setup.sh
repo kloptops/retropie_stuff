@@ -265,9 +265,9 @@ do_shutdown_button_uninstall() {
 }
 ########################################################################################
 ### Safer shutdown.
-do_shutdown_button_install() {
+do_safer_shutdown_install() {
 	echo "Installing safer shutdown"
-	if [ -f $HOME/bin/killes.py ];
+	if [ -f $HOME/bin/killes.sh ];
 	then
 		echo "Safer shutdown already installed!"
 		return
@@ -299,11 +299,11 @@ EOF
 	echo "Finished installing safer shutdown"
 }
 
-do_shutdown_button_uninstall() {
+do_safer_shutdown_uninstall() {
 	echo "Uninstalling safer shutdown"
 	if [ ! -f $HOME/bin/killes.sh ];
 	then
-		echo "Safer shutdown installed!"
+		echo "Safer shutdown not installed!"
 		return
 	fi
 
